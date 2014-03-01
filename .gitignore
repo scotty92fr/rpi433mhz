@@ -2,7 +2,7 @@
 *.slo
 *.lo
 *.o
-
+rfrpi_test
 # Compiled Dynamic libraries
 *.so
 *.dylib
