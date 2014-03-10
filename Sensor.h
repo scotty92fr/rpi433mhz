@@ -35,23 +35,27 @@ protected:
 	double  rain;
 //	double  train;
 	double	pressure;
+	char    confort[16];
+	char    prevision[16];
 
 	int 	channel;
 	bool	battery;			// true if flag set (battery low)
 
 	bool	haveTemperature;	// true when temp capaciy decoded
 	bool	haveHumidity;		// true when hum capacity decoded
-	bool	haveSpeed;			// true when hum capacity decoded
+	bool    haveConfort;            // true when Confort decoded
+	bool	haveSpeed;		// true when hum capacity decoded
 	bool 	haveDirection;		// true when hum capacity decoded
 	bool	haveRain;			// true when hum capacity decoded
 //	bool	haveTrain;			// true when hum capacity decoded
 	bool	havePressure;		// true when hum capacity decoded
+	bool    havePrevision;          // true when prevision capacity decoded
 	bool	haveBattery;		// true when battery flag decoded
 	bool 	haveChannel;		// true when channel is present
 	bool	isValid;			// true when chaecksum is valid and other value valid
 
-	int		sensorClass;		// marque du sensor cf #define
-	int		sensorType;			// model of sensor
+	int	sensorClass;		// marque du sensor cf #define
+	int	sensorType;	      	// model of sensor
 	char    sensorName[128];	// name of the sensor
 
 	time_t  creationTime;		// objectCreation time
@@ -70,33 +74,36 @@ public:
 
 	Sensor( char * _strval );	// construct and decode value
 
-	bool availableTemp();		// return true if valid && have Temp
+	bool availableTemp();	        // return true if valid && have Temp
 	bool availableHumidity();	// return true if valid && have Humidity
 	bool availablePressure();	// return true if valid && have Pressure
 	bool availableSpeed();		// return true if valid && have Wind Speed
 	bool availableDirection();	// return true if valid && have Wind Direction
 	bool availableRain();		// return true if valid && have Rain
 	bool isBatteryLow();		// return true if valid && haveBattery && flag set.
-	bool hasChannel();			// return true if valid && haveChannel
-	bool isDecoded();			// return true if valide
+	bool hasChannel();	       	// return true if valid && haveChannel
+	bool hasConfort();             // return true if valid && hasConfort    
+	bool hasPrevision();           // return true if valid && hasPrevision 
+	bool isDecoded();		// return true if valide
 
 	double getTemperature();	// return temperature in C°
 	double getHumidity();		// return humidity in % (base 100)
 	double getPressure();		// return pressure
-	double getSpeed();			// return wind speed
+	double getSpeed();		// return wind speed
 	double getDirection();		// return wind direction
-	double getRain();			// return rain
-	int getChannel();			// return channel value
-
-	int getSensClass();			// return sensor class
-	int getSensType();			// return sensor type
+	double getRain();		// return rain
+	int getChannel();		// return channel value
+   
+	int getSensClass();		// return sensor class
+	int getSensType();		// return sensor type
 	char * getSensName();		// return sensor name string
-
+	bool getBattery();
+	char * getConfort();
+	char * getPrevision();          // return Prevision information
 	time_t getCreationTime();	// return object creation time
-
 	static Sensor * getRightSensor(char * s);	// wrapper for child class
 
-};
+ };
 
 
 class OregonSensorV2 : public Sensor {

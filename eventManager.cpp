@@ -138,8 +138,13 @@ void * EventManager::eventLoop( void * _param ) {
 						if (s->availableHumidity()) { printf("\", \"humidity\": \"%.0f %%",s->getHumidity());}
 					        if (s->availablePressure()) { printf("\", \"Pressure\": \"%.0f hpa",s->getPressure());}
 						if (s->hasChannel()) { printf("\", \"channel\": \"%d",s->getChannel());}
-						    printf("\" } \n");
-						    //								buffer,	s->getTemperature(), s->getHumidity(), s->getChannel());
+						if (s->hasConfort()) { printf("\", \"Confort\": \"%s",s->getConfort());}
+						if (s->hasPrevision()) { printf("\", \"Prevision\": \"%s",s->getPrevision());}
+						if (s->isBatteryLow()) { printf("\", \"Battery Warning");}
+						else {printf("\", \"battery OK");}
+					       
+						printf("\" } \n");
+//	       					buffer,	s->getTemperature(), s->getHumidity(), s->getChannel());
 
 					} else {
 						if ( s == NULL ) {

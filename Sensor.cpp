@@ -60,6 +60,8 @@
 		this->haveRain= false;
 	//	this->haveTrain = false;
 		this->havePressure = false;
+		this->havePrevision = false;
+		this->haveConfort = false;
 
 		this->sensorType = -1;
 		this->sensorClass = SENS_CLASS_NONE;
@@ -145,11 +147,21 @@
 	}
 
 	// ---------------------------------------------------
-	// haveChannel() - return true if valid && haveChannel
+	// hasChannel() - return true if valid && haveChannel
 	bool Sensor::hasChannel() {
 		return ( this->isValid && this->haveChannel );
 	}
-	// ---------------------------------------------------
+        // ---------------------------------------------------
+        // has() - return true if valid && haveConfort
+        bool Sensor::hasConfort() {
+	        return ( this->isValid && this->haveConfort);
+        }
+        // ----------------------------------------------------
+        // hasPrevision()- return true if valid && havePrevision
+        bool Sensor::hasPrevision(){
+	  return (this->isValid && this->havePrevision);
+        }	
+        // ---------------------------------------------------
 	// isDecoded() - return true if valid
 	bool Sensor::isDecoded() {
 		return ( this->isValid );
@@ -160,8 +172,16 @@
 	int Sensor::getChannel() {
 		return this->channel;
 	}
-
-	// ---------------------------------------------------
+        // -----------------------------------------------
+        // getConfort() - return (Normal,confortable,dry,wet)
+        char * Sensor::getConfort(){
+	  return (this->confort);
+	}
+        // getPrevision() - return 'sunny','partly','cloudy','rain'
+        char * Sensor::getPrevision(){
+	        return this->prevision;
+	}
+        // ---------------------------------------------------
 	// getCreationTime() - return object creation time
 	time_t Sensor::getCreationTime() {
 		return this->creationTime;
@@ -192,7 +212,7 @@
 		  if ( _hexDecod[i] == c ) return i;
 		return -1;
 	}
-
+        
 	// ---------------------------------------------------
 	// getIntFromString() - get an unsigned int value from
 	//   the given string. -1 if error
@@ -710,7 +730,7 @@
 			// Conversion to int value
 			ichannel = getIntFromChar(channel);
 			irolling = getIntFromString(rolling);
-			ibattery = getIntFromChar(battery);
+			ibattery = getIntFromChar(battery) & 0x04;
 			itempS = getIntFromChar(tempS) & 0x08;
 			ichecksum = getIntFromString(checksum);
 			icrc = getIntFromString(crc);
@@ -745,58 +765,123 @@
 		return false;
 	}
 
-       // --------------------------------------------------------------------------                                                                                                            
-       // Decode OregonScientific V2 protocol for specific                                                                                                                                      
-       // Oregon Devices                                                                                                                                                                        
-       // – BTHR918 temperature + hygro + pression atmospherique                                                                                                                                
-       //                                                                                                                                                                                       
-       // --------------------------------------------------------------------------                                                                                                            
+       // --------------------------------------------------------------------------
+       // Decode OregonScientific V2 protocol for specific
+       // Oregon Devices
+       // – BTHR918 temperature + hygro + pression atmospherique
+       //    00 00 00 00 00 11 11 11 11 11 
+       //    01 23 45 67 89 01 23 45 67 89
+       //    5A 5D 00 DB 70 18 30 04 CE 03
+       //    
+       //       - synchro  -> (01)           -> A
+       //       - Type     -> (00/03/02/05)  -> 5D50     
+       //       - Canal    -> (04)           -> 0  
+       //       - UID      -> (06/07)        -> DB
+       //       - Batterie -> (09)           -> 0 (0 ok ; 2=? ; 8=? )
+       //       - Temp     -> (10/11/08)     -> 187 (BCD in °c*10))
+       //       - temp sgn -> (13)           -> 0 (0 = + other= minus)
+       //       - hygrom   -> (15/12)        -> 43 (in %)
+       //       - Confort  -> (14)           -> 0 (nrmal,Confortable,dry,wet)
+       //       - Pressur  -> (16/17)        -> CE (206 in decimal add 795 to have hpa)
+       //       - Unknown  _> (18)           -> ??
+       //       - Previson -> (19)           -> 0xc=>'sunny',0x6=>'partly',0x2=>'cloudy',0x3=>'rain'
+       // --------------------------------------------------------------------------
        bool OregonSensorV2::decode_BTHR918(char * pt) {
 
-	 char temp[4]; double dtemp; // Temp in BCD                                                                                                                                       
-	 char tempS; int itempS; // Sign 0 = positif                                                                                                                                    
-	 char humid[4]; double dhumid; // Humid in BCD                                                                                                                                          
+	 char rolling[3]; int irolling;
+	 char channel; int ichannel;                             // values 1,2,3
+	 char temp[4]; double dtemp; // Temp in BCD
+	 char tempS; int itempS; // Sign 0 = positif
+	 char humid[4]; double dhumid; // Humid in BCD
 	 char pressure[3]; double ipressure;
-
+	 char battery; int ibattery;
+	 char prevision[16]; 
+	 char confort[16];
 	 char crc[3]; int icrc;
 	 int len = strlen(pt);
 
 	 if ( len == 20 ) {
+
+	   rolling[0]=pt[7]; rolling[1]=pt[6]; rolling[2]='\0';
+	   battery = pt[9];
 	   temp[0] = pt[10] ; temp[1] = pt[11] ; temp[2] = pt[8] ; temp[3] = '\0';
 	   tempS = pt[13];
 	   humid[0] = pt[15] ; humid[1] = pt[12]; humid[2] = '0' ; humid[3] = '\0';
 	   pressure[0]=pt[16];pressure[1]=pt[17];pressure[2]= '\0';
 	   crc[0] = pt[18] ; crc[1] = pt[19] ; crc[2] =  '\0';
-
+	   switch (getIntFromChar(pt[14])){ 
+	       case 0x0:
+	         strcpy (confort,"Normal");
+                 break;
+	       case 0x4:
+                 strcpy (confort,"confort");
+                 break;
+    	       case 0xc:
+                 strcpy (confort,"wet");
+		 break;
+               case 0x8:
+	         strcpy(confort,"dry");
+		 break;
+	       
+	       default:
+		 strcpy (confort,"unknown");
+	   }   
+	   switch( getIntFromChar(pt[19]) ){
+	   case 0x2:
+	        strcpy (prevision,"claudy");
+	        break;
+	     case 0x3:
+		strcpy(prevision,"rain");
+		break;
+	     case 0x6:
+	        strcpy(prevision,"partly");
+		break;
+	     case 0xC:
+	       strcpy (prevision,"sun");
+	       break;
+	     default:
+	       strcpy(prevision,"unknown");	    
+	   }
+	   printf ("debug: confort:(%c) %s - prevision(%c) %s",pt[14],confort,pt[19],prevision);
 #ifdef SENSORDEBUG
 	   printf(" OSV2 – decode : id(%s) temp(%s) sign(%c) humid(%s) pressure(%s) crc(%s)\n ",
 		  " 5D50",temp,tempS,humid, pressure, crc);
 #endif
 
-	   // Conversion to int value                                                                                                                                                        
+	   // Conversion to int value
+	   ichannel = getIntFromChar(channel);
 	   itempS = getIntFromChar(tempS) & 0x08;
+	   irolling = getIntFromString(rolling);
 	   icrc = getIntFromString(crc);
 	   dtemp = getDoubleFromString(temp);
 	   dhumid = getDoubleFromString(humid);
 	   ipressure = getIntFromString(pressure);
-
+	   ibattery = getIntFromChar(battery) & 0x04;
 #ifdef SENSORDEBUG
 	   printf(" OSV2 – decode : id(0x%04X) temp(%f) sign(%d) humid(%d) pressure(%d) cksum(0x%02X) crc(0x%02X)\n ",
 		  0x5D50,dtemp,itempS,dhumid, ipressure, icrc);
 #endif
 
-	   // Check SUM & CRC                                                                                                                                                           
-	   // if ( validate(pt,16,icrc,ichecksum) == true ) {                                                                                                                               
+	   // Check SUM & CRC
+	   // if ( validate(pt,16,icrc,ichecksum) == true ) {
 
-	   // now we can decode the important flag and fill the object                                                                                                                         
+	   // now we can decode the important flag and fill the object
+	   this->haveChannel = true;
+	   this->channel = (ichannel != 4)?ichannel:3;
+	   this->haveBattery = true;
+	   this->battery = (ibattery != 0);
 	   this->haveTemperature = true;
 	   this->temperature = (itempS == 0)?dtemp:-dtemp;
 	   this->haveHumidity = true;
 	   this->humidity = dhumid;
 	   this->havePressure = true;
 	   this->pressure = (795 + ipressure);
+	   strcpy (this->confort ,  confort);
+	   this->haveConfort = true;
+	   strcpy(this->prevision ,  prevision);
+	   this->havePrevision = true;
 	   return true;
-	   // } else return false;                                                                                                                                                                  
+	   // } else return false;
 
 	 }
 	 return false;

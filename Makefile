@@ -32,7 +32,7 @@ $(OBJ_DIR)/%.o: $(rfrpi_dir)/%.cpp $(rfrpi_dir)/%.h
 	@echo compiling $@
 	$(CX) $(CFLAGS) $(INC) $< -o $@ $(TRFLAGS)
 	@echo '-------------'
-	
+
 $(OBJ_DIR)/%.o: $(target_dir)/%.cpp
 	@echo '----------------------------------'
 	@echo compiling $@
@@ -41,5 +41,6 @@ $(OBJ_DIR)/%.o: $(target_dir)/%.cpp
 
 clean:
 	@rm $(OBJ_DIR)/*.o
+	@rm $(OBJ_DIR)/*.d
+	@rm $(OBJ_DIR)/#*#
 	@rm $(target)
-	
