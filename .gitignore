@@ -13,3 +13,7 @@ rfrpi_test
 *.lai
 *.la
 *.a
+
+# temporairy files 
+\#*\#
+
