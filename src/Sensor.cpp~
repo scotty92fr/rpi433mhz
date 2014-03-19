@@ -282,17 +282,8 @@
 bool Sensor::writeElement(int fileDescription, char * Element, char * stringToWrite){
   char buff[100];
 	  sprintf (buff,"\t<%s>%s<%s>\n ",Element,stringToWrite,Element);
-	  write (fileDescription,buff,strlen(buff)); 
+	  write (fileDescription,buff,strlen(buff));
 	}
-bool Sensor::writeElement(int fileDescription, char * Element, time_t timeToWrite){
-  struct tm * local;
-  char buff[100];
-  char buffTime[80];
-  local = localtime(&timeToWrite) ;
-  strftime (buffTime,80,"%F %T",local);
-  sprintf (buff,"\t<%s>%s<%s>\n ",Element,buffTime,Element);
-  write (fileDescription,buff,strlen(buff));
-}
 bool Sensor::writeElement(int fileDescription, char * Element, int intToWrite,char * format){
 	  char buff[100];
 	  sprintf (buff,"\t<%s>%s</%s>\n ", Element,format, Element);
@@ -317,7 +308,6 @@ bool Sensor::writeXML(char * FilePath){
       write(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", 39);
       write(fd, "<Sensor>\n", 9);
       writeElement (fd,"raw"       ,this->raw);
-      writeElement(fd,"creationTime",this->creationTime);
       writeElement (fd,"SensorType",this->sensorType  ,"0x%02x");
       writeElement (fd,"sensorName",this->sensorName);
       
@@ -344,7 +334,7 @@ bool Sensor::writeXML(char * FilePath){
       if (this->hasForecast()){
 	writeElement(fd,"forecastLabel",this->forecastLabel);
 	writeElement(fd,"forecast",this->forecast,"%d");
-	printf ("------> test <---------\nForecast %d\n\n<---------------------->",this->forecast);
+	printf ("------> test <---------\nForecast %d\n<---------------------->",this->forecast);
       }
       
       //writeElement(fd,"creationTime",this->getCreationTime);

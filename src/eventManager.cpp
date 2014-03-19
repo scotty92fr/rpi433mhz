@@ -138,13 +138,13 @@ void * EventManager::eventLoop( void * _param ) {
 						if (s->availableHumidity()) { printf("\", \"humidity\": \"%.0f %%",s->getHumidity());}
 					        if (s->availablePressure()) { printf("\", \"Pressure\": \"%.0f hpa",s->getPressure());}
 						if (s->hasChannel()) { printf("\", \"channel\": \"%d",s->getChannel());}
-						if (s->hasConfort()) { printf("\", \"Confort\": \"%s",s->getConfort());}
-						if (s->hasPrevision()) { printf("\", \"Prevision\": \"%s",s->getPrevision());}
+						if (s->hasConfort()) { printf("\", \"Confort\": \"%s",s->getConfortLabel());}
+						if (s->hasForecast()) { printf("\", \"Prevision\": \"%s",s->getForecastLabel());}
 						if (s->isBatteryLow()) { printf("\", \"Battery Warning");}
-						else {printf("\", \"battery OK");}
-					       
+						else {printf("\", \"battery OK");}					       
 						printf("\" } \n");
 //	       					buffer,	s->getTemperature(), s->getHumidity(), s->getChannel());
+						s->writeXML("Sensor.xml");
 
 					} else {
 						if ( s == NULL ) {
