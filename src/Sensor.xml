@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sensor>
+	<raw>5A5D00DB90207044D102</raw>
+ 	<creationTime>2014-03-29 21:45:23</creationTime>
+ 	<SensorType>0x5d50</SensorType>
+ 	<sensorName>BTHR918</sensorName>
+ 	<channel>-1</channel>
+ 	<battery>0</battery>
+ 	<temperature>20.9</temperature>
+ 	<humidity>47</humidity>
+ 	<pressure>1004</pressure>
+ 	<confortLabel>confort</confortLabel>
+ 	<confort>4</confort>
+ 	<forecastLabel>claudy</forecastLabel>
+ 	<forecast>2</forecast>
+ </Sensor>

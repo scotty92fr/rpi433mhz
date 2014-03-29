@@ -279,18 +279,23 @@
 // filename : path and name of the xml file
 // need to have Sensor class with all data set and valid
 // ======================================================
-bool Sensor::writeElement(int fileDescription, char * Element, char * stringToWrite){
-  char buff[100];
-	  sprintf (buff,"\t<%s>%s<%s>\n ",Element,stringToWrite,Element);
-	  write (fileDescription,buff,strlen(buff)); 
-	}
-bool Sensor::writeElement(int fileDescription, char * Element, time_t timeToWrite){
+bool Sensor::writeElement(int fileDescription, char * Element, char * stringToWrite)
+{
+	char buff[100];
+	
+	sprintf (buff,"\t<%s>%s</%s>\n ",Element,stringToWrite,Element);
+	 write (fileDescription,buff,strlen(buff)); 
+}
+
+bool Sensor::writeElement(int fileDescription, char * Element, time_t timeToWrite)
+{
   struct tm * local;
   char buff[100];
   char buffTime[80];
+
   local = localtime(&timeToWrite) ;
   strftime (buffTime,80,"%F %T",local);
-  sprintf (buff,"\t<%s>%s<%s>\n ",Element,buffTime,Element);
+  sprintf (buff,"\t<%s>%s</%s>\n ",Element,buffTime,Element);
   write (fileDescription,buff,strlen(buff));
 }
 bool Sensor::writeElement(int fileDescription, char * Element, int intToWrite,char * format){
@@ -301,7 +306,7 @@ bool Sensor::writeElement(int fileDescription, char * Element, int intToWrite,ch
 	}
 bool Sensor::writeElement(int fileDescription, char * Element, double doubleToWrite,char * format){
   char buff[100];
-  sprintf (buff,"\t<%s>%s<%s>\n ",Element,format,Element);
+  sprintf (buff,"\t<%s>%s</%s>\n ",Element,format,Element);
   sprintf (buff,buff,doubleToWrite);
   write (fileDescription,buff,strlen(buff));
 }
@@ -316,39 +321,38 @@ bool Sensor::writeXML(char * FilePath){
       fd = open(FilePath, O_RDWR | O_TRUNC | O_CREAT, 00644);
       write(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", 39);
       write(fd, "<Sensor>\n", 9);
-      writeElement (fd,"raw"       ,this->raw);
-      writeElement(fd,"creationTime",this->creationTime);
-      writeElement (fd,"SensorType",this->sensorType  ,"0x%02x");
-      writeElement (fd,"sensorName",this->sensorName);
+      writeElement (fd,(char *)"raw", this->raw);
+      writeElement(fd,(char *)"creationTime",this->creationTime);
+      writeElement (fd,(char *)"SensorType",this->sensorType  ,(char *)"0x%02x");
+      writeElement (fd,(char *)"sensorName",this->sensorName);
       
       if (this->hasChannel()) {
-      	writeElement(fd,"channel"    ,this->channel     ,"%d");
+      	writeElement(fd,(char *)"channel"    ,this->channel     ,(char *)"%d");
       }
       
       if (this->haveBattery) { 
-	writeElement(fd,"battery",this->battery,"%d");
+	writeElement(fd,(char *)"battery",this->battery,(char *)"%d");
       }
       if (this->availableTemp()) {
-	writeElement(fd,"temperature",this->temperature ,"%.1f");
+	writeElement(fd,(char *)"temperature",this->temperature ,(char *)"%.1f");
       }
       if (this->availableHumidity()){
-	writeElement(fd,"humidity"   ,this->humidity    ,"%.0f");
+	writeElement(fd,(char *)"humidity"   ,this->humidity    ,(char *)"%.0f");
       }
       if (this->availablePressure()){
-	writeElement(fd,"pressure"   ,this->pressure    ,"%.0f");
+	writeElement(fd,(char *)"pressure"   ,this->pressure    ,(char *)"%.0f");
       }
       if (this->hasConfort()) {
-	writeElement(fd, "confortLabel",this->confortLabel);
-	writeElement(fd, "confort",this->confort,"%d");
+	writeElement(fd,(char *)"confortLabel",this->confortLabel);
+	writeElement(fd,(char *)"confort",this->confort,(char *)"%d");
       }
       if (this->hasForecast()){
-	writeElement(fd,"forecastLabel",this->forecastLabel);
-	writeElement(fd,"forecast",this->forecast,"%d");
-	printf ("------> test <---------\nForecast %d\n\n<---------------------->",this->forecast);
+	writeElement(fd,(char *)"forecastLabel",this->forecastLabel);
+	writeElement(fd,(char *)"forecast",this->forecast,(char *)"%d");
       }
       
       //writeElement(fd,"creationTime",this->getCreationTime);
-      write(fd, "</Sensor>\n",10);  
+      write(fd, (char *)"</Sensor>\n",10);  
       close(fd);
       status =true;
     }
@@ -936,7 +940,7 @@ bool Sensor::writeXML(char * FilePath){
 	     default:
 	       strcpy(forecastLabel,"unknown");	    
 	   }
-	   printf ("debug: confort:(%c) %s - prevision(%c) %s",pt[14],confort,pt[19],forecast);
+	   
 #ifdef SENSORDEBUG
 	   printf(" OSV2 – decode : id(%s) temp(%s) sign(%c) humid(%s) pressure(%s) crc(%s)\n ",
 		  " 5D50",temp,tempS,humid, pressure, crc);

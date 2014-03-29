@@ -160,7 +160,7 @@ void * core_433::receptionLoop( void * _param ) {
 				}
 			}
 		}
-	    usleep(5000); // 5 ms sleep before next pooling
+		usleep(5000); // 5 ms sleep before next pooling
 	}
 }
 

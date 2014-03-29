@@ -39,6 +39,8 @@
  */
 int main(int argc, char *argv[]) {
 
+  (void)argc;
+  (void)argv;
 	// wiring Pi startup
 	if(wiringPiSetup() == -1) {
 		printf("Error during wiringPi Initialization\n");

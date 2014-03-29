@@ -8,7 +8,7 @@ INC = -I/usr/local/include -I .
 #TRFLAGS = -DSENSORDEBUG
 NOTUSEDTRFLAGS = -DTRACE_RCOOK -DSENSORDEBUG 
 
-CFLAGS = -c -MMD
+CFLAGS = -c -MMD -O3 
 LDFLAGS += -Xlinker --defsym -Xlinker RFRPI_BUILD_DATE=$$(date +'%Y%m%d') -L/usr/local/lib
 
 rfrpi_dir = ./
@@ -45,3 +45,6 @@ clean:
 	@rm $(OBJ_DIR)/*.d
 	@rm $(OBJ_DIR)/#*#
 	@rm $(target)
+
+re: clean $(target)
+
